@@ -1,0 +1,48 @@
+//code in C++
+//Code prints any motion detection to serial monitor after changing led state.
+//declaring the pins for the led and PIR sensor that are connnected
+const int sensor = 2;
+const int led = 13;
+//setting iniital ledstate to LOW as it starts turned off
+int ledstate = LOW;
+
+void setup()
+{
+  //setting up the pins for input and output
+  //here the led is the output and the PIR sensor is the input
+  pinMode(led, OUTPUT);
+  pinMode(sensor, INPUT);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  //sensorvalue is a variable that stores data from the input or the sensor
+  int sensorvalue = digitalRead(sensor); 
+  //power to the led pin is changed based on input from sensor
+  digitalWrite(led, sensorvalue); 
+  //checking sensorstate to see if sensor is picking up any motion or not
+  if (sensorvalue == HIGH) 
+  {
+    //checking for ledstate to see if led is switched on or off
+    if (ledstate==LOW) 
+    {
+      //printing the motion detected to serial monitor and switching ledstate
+      Serial.println("Sensor has detected motion"); 
+      ledstate = HIGH;       
+    }
+  }
+  
+  else 
+  {
+    //power to the led pin is changed based on input from sensor
+    digitalWrite(led, sensorvalue);
+    //checking for ledstate to see if led is switched on or off
+    if (ledstate == HIGH)
+    {
+      //printing to serial monitor and switching ledstate
+      Serial.println("No more motion detected by sensor");
+      ledstate = LOW;       
+    }
+  }
+}
