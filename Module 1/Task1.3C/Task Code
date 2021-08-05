@@ -1,0 +1,68 @@
+//Code in C++
+//Code prints any motion detection to serial monitor after changing led states for the corresponding sensor
+//Both the sensors in this task will be using PIR sensors as the recomemnded sound sensor is not available on tinkercard where this task is built
+
+//Declaring pins for both the sensors and leds
+const int sensor1 = 2;
+const int sensor2 = 3;
+const int led1 = 12;
+const int led2 = 13;
+//Setting the led state for both the leds to low as they both will be switched off at the start
+int led1state = LOW;
+int led2state = LOW;
+
+void setup()
+{
+  //setting up the pins for input and output
+  //here leds are the outputs and the PIR sensors are the inputs 
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(sensor1, INPUT);
+  pinMode(sensor2, INPUT);
+  Serial.begin(9600);
+
+  //these are the two interrupts for each of the two sensors on pin 2 for sensor 1 and pin 3 for sensor 2
+  attachInterrupt(digitalPinToInterrupt(sensor1), IRC_sensor1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(sensor2), IRC_sensor2, CHANGE);
+
+}
+
+void loop()
+{
+  //delay signifying other work
+  delay(1000);
+}
+
+//First IRC function for the first set of led and sensor
+void IRC_sensor1()
+{
+  led1state = !led1state;
+  //power to the led pin is updated
+  digitalWrite(led1, led1state);
+  //if-else block to output results to serial monitor when motion is detected and when it stops detecting
+  if (led1state == HIGH)
+  {
+    Serial.println("First sensor has detected motion");
+  }
+  else
+  {
+    Serial.println("First sensor has stopped detecting motion");
+  }
+}
+
+//First IRC function for the second set of led and sensor
+void IRC_sensor2()
+{
+  led2state = !led2state;
+  //power to the led pin is updated
+  digitalWrite(led2, led2state);
+  //if-else block to output results to serial monitor when motion is detected and when it stops detecting
+  if (led2state == HIGH)
+  {
+    Serial.println("Second sensor has detected motion");
+  }
+  else
+  {
+    Serial.println("Second sensor has stopped detecting motion");
+  }
+}
