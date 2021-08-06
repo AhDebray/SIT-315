@@ -1,0 +1,92 @@
+//Code in C++
+//Code prints any motion detection to serial monitor after changing led states for the corresponding sensor along with a constantly blinking led which blinks at 1Hz as a timer led
+//All the sensors in this task will be using PIR sensors as the recomemnded sound sensor is not available on tinkercard where this task is built
+
+//Declaring pins for sensors and leds
+int sensor1 = 2;               
+int sensor2 = 3;                   
+int sensor3 = 4;
+int led1 = 13;
+int led2 = 12;
+int led3 = 11;
+
+//timer led
+int timerled = 7;
+
+//Counter and compare values
+const int t1_load = 0; 
+const int t1_comp = 15624; 
+
+void setup()
+{
+  //setting up the pins for input and output
+  //here leds are the outputs and the PIR sensors are the inputs 
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+  pinMode(sensor1, INPUT);
+  pinMode(sensor2, INPUT);
+  pinMode(sensor3, INPUT);
+  pinMode(timerled, OUTPUT);
+  
+  //Setting pin change interrupts
+  PCICR |= 0b00000100;  //Enabling port D 
+  PCMSK2 |= 0b00011100;
+  
+  Serial.begin(9600);
+  noInterrupts();
+  
+  //reseting timer 1 control register to default values
+  TCCR1A = 0;       
+  TCCR1B = 0;
+
+  //reset timer and set compare values
+  TCNT1 = t1_load;
+  OCR1A = t1_comp; // 1 Hz (16000000/((15624+1)*1024))
+
+  //Clear timer on compare more set to the WGM12 bit
+  TCCR1B |= (1 << WGM12);
+
+  // Prescaler 1024 set
+  TCCR1B |= (1 << CS12) | (1 << CS10);
+
+  //setting output compare interrupt enable bit for timer 1 compare match A
+  TIMSK1 |= (1 << OCIE1A);     
+  interrupts();
+}
+
+void loop()
+{
+  digitalWrite(13,led1);            
+  digitalWrite(12,led2);
+  digitalWrite(11,led3);
+}
+
+//ISR for leds that switch on after motion is detected
+ISR(PCINT2_vect)
+{
+  led1=PIND & B00001000;
+  led2=PIND & B00000100;
+  led3=PIND & B00010000;
+
+  //if else block to print message for corresponding sensor 
+  if (led1)
+  {
+    Serial.println("First sensor detected motion");
+  }
+  else if (led2)
+  {
+    Serial.println("Second sensor detected motion");
+  }
+  else if (led3)
+  {
+    Serial.println("Third sensor detected motion");
+  }
+}
+
+//ISR controlling the timer led blinking
+ISR(TIMER1_COMPA_vect)
+{
+  digitalWrite(timerled,digitalRead(timerled)^1);
+  PORTB ^= (1 << timerled);
+}
