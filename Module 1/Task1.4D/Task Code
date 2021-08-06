@@ -62,6 +62,13 @@ void loop()
   digitalWrite(11,led3);
 }
 
+//ISR controlling the timer led blinking
+ISR(TIMER1_COMPA_vect)
+{
+  digitalWrite(timerled,digitalRead(timerled)^1);
+  PORTB ^= (1 << timerled);
+}
+
 //ISR for leds that switch on after motion is detected
 ISR(PCINT2_vect)
 {
@@ -84,9 +91,3 @@ ISR(PCINT2_vect)
   }
 }
 
-//ISR controlling the timer led blinking
-ISR(TIMER1_COMPA_vect)
-{
-  digitalWrite(timerled,digitalRead(timerled)^1);
-  PORTB ^= (1 << timerled);
-}
